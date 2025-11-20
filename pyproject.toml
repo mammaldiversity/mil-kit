@@ -1,0 +1,37 @@
+[project]
+name = "psd-toolkit"
+version = "0.1.0"
+description = "A toolkit for batch processing PSD files - hide text layers and export to PNG"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Heru Handika", email = "hhandi1@lsu.edu" }]
+keywords = [
+    "psd",
+    "photoshop",
+    "batch-processing",
+    "image-processing",
+    "automation",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+    "Topic :: Utilities",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+dependencies = ["psd-tools>=1.12.0"]
+
+[project.urls]
+Homepage = "https://github.com/hhandika/psd-toolkit"
+Repository = "https://github.com/hhandika/psd-toolkit"
+Issues = "https://github.com/hhandika/psd-toolkit/issues"
+
+[project.scripts]
+psd-toolkit = "psd_toolkit.main:main"
