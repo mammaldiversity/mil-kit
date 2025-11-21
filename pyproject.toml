@@ -5,7 +5,7 @@ description = "A toolkit for batch processing PSD files - hide text layers and e
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "Heru Handika", email = "hhandi1@lsu.edu" }]
+authors = [{ name = "Heru Handika", email = "herubiolog@gmail.com" }]
 keywords = [
     "psd",
     "photoshop",
