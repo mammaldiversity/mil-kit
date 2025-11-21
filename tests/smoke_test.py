@@ -20,7 +20,7 @@ def test_package_import():
 @pytest.mark.parametrize(
     "finder, name, ispkg", list(pkgutil.iter_modules())
 )
-def test_submodule_discovery(name):
+def test_submodule_discovery(finder, name, ispkg):
     # Only test submodules that start with the package prefix
     if not name.startswith(
         PACKAGE_NAME.split("_")[0]
