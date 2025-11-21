@@ -14,7 +14,7 @@ keywords = [
     "automation",
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: End Users/Desktop",
     "Topic :: Multimedia :: Graphics :: Graphics Conversion",
@@ -26,11 +26,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Operating System :: OS Independent",
 ]
-dependencies = [
-    "pillow>=12.0.0",
-    "psd-tools>=1.12.0",
-    "tqdm>=4.67.1",
-]
+dependencies = ["pillow>=12.0.0", "psd-tools>=1.12.0", "tqdm>=4.67.1"]
 
 [project.urls]
 Homepage = "https://github.com/hhandika/psd-toolkit"
@@ -41,6 +37,4 @@ Issues = "https://github.com/hhandika/psd-toolkit/issues"
 psd-toolkit = "psd_toolkit.main:main"
 
 [dependency-groups]
-dev = [
-    "pytest>=9.0.1",
-]
+dev = ["pytest>=9.0.1"]
