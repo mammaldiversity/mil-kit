@@ -26,7 +26,11 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Operating System :: OS Independent",
 ]
-dependencies = ["psd-tools>=1.12.0"]
+dependencies = [
+    "pillow>=12.0.0",
+    "psd-tools>=1.12.0",
+    "tqdm>=4.67.1",
+]
 
 [project.urls]
 Homepage = "https://github.com/hhandika/psd-toolkit"

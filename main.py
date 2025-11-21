@@ -1,50 +1,7 @@
 import argparse
 import sys
 from pathlib import Path
-from psd_tools import PSDImage
-
-
-class PSDProcessor:
-    """
-    Handles the loading, modification, and exporting of a single PSD file.
-    """
-
-    def __init__(self, file_path):
-        self.file_path = Path(file_path)
-        self.psd = None
-        self.hidden_count = 0
-
-    def load(self):
-        """Loads the PSD file."""
-        try:
-            self.psd = PSDImage.open(self.file_path)
-        except Exception as e:
-            raise IOError(f"Failed to open PSD: {e}")
-
-    def hide_text_layers(self):
-        """Iterates through all layers and hides those of kind 'type'."""
-        if not self.psd:
-            raise RuntimeError("PSD not loaded. Call load() first.")
-
-        self.hidden_count = 0
-        # descendants() iterates recursively through groups
-        for layer in self.psd.descendants():
-            if layer.kind == "type" and layer.visible:
-                layer.visible = False
-                self.hidden_count += 1
-
-        return self.hidden_count
-
-    def export_as_png(self, output_path):
-        """Composites the PSD and saves as PNG."""
-        if not self.psd:
-            raise RuntimeError("PSD not loaded.")
-
-        # Ensure the target directory exists
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-
-        # Composite merges layers; save exports using PIL/Pillow
-        self.psd.composite().save(output_path)
+from psd.processor import PSDProcessor
 
 
 class BatchJob:
@@ -52,9 +9,16 @@ class BatchJob:
     Manages the processing of a directory of files.
     """
 
-    def __init__(self, input_dir, output_dir=None, recursive=False):
+    def __init__(
+        self,
+        input_dir,
+        output_dir=None,
+        recursive=False,
+        output_format="png",
+    ):
         self.input_dir = Path(input_dir)
         self.recursive = recursive
+        self.output_format = output_format.lower()
 
         # If no output dir is specified, use input dir
         self.output_dir = (
@@ -62,30 +26,6 @@ class BatchJob:
         )
 
         self.stats = {"success": 0, "failed": 0, "skipped": 0}
-
-    def _get_files(self):
-        """Generator that yields PSD files based on recursion setting."""
-        if not self.input_dir.exists():
-            raise FileNotFoundError(
-                f"Input directory not found: {self.input_dir}"
-            )
-
-        pattern = "*.psd"
-        return (
-            self.input_dir.rglob(pattern)
-            if self.recursive
-            else self.input_dir.glob(pattern)
-        )
-
-    def _calculate_output_path(self, psd_path):
-        """Determines the destination path, preserving folder structure if recursive."""
-        if self.recursive and self.output_dir != self.input_dir:
-            # Create mirror structure: output/subfolder/file.png
-            rel_path = psd_path.relative_to(self.input_dir)
-            return self.output_dir / rel_path.with_suffix(".png")
-        else:
-            # Flat structure or same folder
-            return self.output_dir / f"{psd_path.stem}.png"
 
     def run(self):
         """Executes the batch processing."""
@@ -113,8 +53,8 @@ class BatchJob:
 
                 count = processor.hide_text_layers()
 
-                dest_path = self._calculate_output_path(psd_path)
-                processor.export_as_png(dest_path)
+                dest_path = self._generate_output_path(psd_path)
+                processor.export(dest_path, format=self.output_format)
 
                 print(f"Done. (Hidden {count} layers)")
                 self.stats["success"] += 1
@@ -124,6 +64,35 @@ class BatchJob:
                 self.stats["failed"] += 1
 
         self._print_summary(total_files)
+
+    def _get_files(self):
+        """Generator that yields PSD files based on recursion setting."""
+        if not self.input_dir.exists():
+            raise FileNotFoundError(
+                f"Input directory not found: {self.input_dir}"
+            )
+
+        pattern = "*.psd"
+        return (
+            self.input_dir.rglob(pattern)
+            if self.recursive
+            else self.input_dir.glob(pattern)
+        )
+
+    def _generate_output_path(self, psd_path):
+        """Determines the destination path, preserving folder structure if recursive."""
+        if self.recursive and self.output_dir != self.input_dir:
+            # Create mirror structure: output/subfolder/file.png
+            rel_path = psd_path.relative_to(self.input_dir)
+            return self.output_dir / rel_path.with_suffix(
+                f".{self.output_format}"
+            )
+        else:
+            # Flat structure or same folder
+            return (
+                self.output_dir
+                / f"{psd_path.stem}.{self.output_format}"
+            )
 
     def _print_summary(self, total):
         print(f"\n{'=' * 40}")
@@ -148,6 +117,12 @@ def main():
         "-o",
         "--output",
         help="Output directory (default: input directory)",
+    )
+    parser.add_argument(
+        "-f",
+        "--output-format",
+        default="png",
+        help="Output format (default: png)",
     )
     parser.add_argument(
         "-r",

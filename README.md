@@ -57,10 +57,10 @@ from psd_toolkit import PSDProcessor, BatchJob
 processor = PSDProcessor("image.psd")
 processor.load()
 processor.hide_text_layers()
-processor.export_as_png("output.png")
+processor.export("output.png", format="png")
 
 # Batch process
-job = BatchJob(input_dir="./psd_files", output_dir="./output", recursive=True)
+job = BatchJob(input_dir="./psd_files", output_dir="./output", recursive=True, output_format="png")
 job.run()
 ```
 
@@ -72,10 +72,6 @@ job.run()
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
-
-## Author
-
-Heru Handika
 
 ## Contributing
 
