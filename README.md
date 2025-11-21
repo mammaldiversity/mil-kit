@@ -5,8 +5,10 @@ A Python toolkit for batch processing Adobe Photoshop PSD files. Automatically h
 ## Features
 
 - 🚀 Batch process multiple PSD files in a directory
+- ⚡ Parallel processing for faster execution
+- 📊 Progress bar with detailed status
 - 📝 Automatically hide all text layers
-- 🖼️ Export processed files as PNG images
+- 🖼️ Export processed files as PNG (default) or other formats
 - 📁 Support for recursive directory processing
 - ⚡ Preserve folder structure in output
 
@@ -34,16 +36,17 @@ Process PSD files in a directory:
 psd-toolkit -d /path/to/psd/files
 ```
 
-Process recursively and specify output directory:
+Process recursively, specify output directory, and use JPEG format:
 
 ```bash
-psd-toolkit -d /path/to/psd/files -o /path/to/output -r
+psd-toolkit -d /path/to/psd/files -o /path/to/output -r -f jpeg
 ```
 
 ### Options
 
 - `-d, --dir`: Input directory containing PSD files (required)
-- `-o, --output`: Output directory for PNG files (default: input directory)
+- `-o, --output`: Output directory for processed files (default: input directory)
+- `-f, --output-format`: Output image format (default: png)
 - `-r, --recursive`: Process subdirectories recursively
 
 ### Python API
@@ -51,16 +54,23 @@ psd-toolkit -d /path/to/psd/files -o /path/to/output -r
 You can also use psd-toolkit as a Python library:
 
 ```python
-from psd_toolkit import PSDProcessor, BatchJob
+from psd_toolkit.psd.processor import PSDProcessor
+from psd_toolkit.job import BatchJob
 
 # Process a single file
 processor = PSDProcessor("image.psd")
 processor.load()
 processor.hide_text_layers()
-processor.export("output.png", format="png")
+processor.export("output.jpg", format="jpeg")
 
 # Batch process
-job = BatchJob(input_dir="./psd_files", output_dir="./output", recursive=True, output_format="png")
+job = BatchJob(
+    input_dir="./psd_files",
+    output_dir="./output",
+    recursive=True,
+    output_format="png",
+    max_workers=4
+)
 job.run()
 ```
 
@@ -68,6 +78,8 @@ job.run()
 
 - Python >= 3.10
 - psd-tools >= 1.12.0
+- pillow >= 12.0.0
+- tqdm >= 4.67.1
 
 ## License
 
