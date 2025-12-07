@@ -27,7 +27,7 @@ pip install mil-kit
 Or using uv:
 
 ```bash
-uv add psd-toolkit
+uv add mil-kit
 ```
 
 ## Usage
@@ -58,8 +58,8 @@ mil-kit -d /path/to/psd/files -o /path/to/output -r -f jpeg
 You can also use mil-kit as a Python library:
 
 ```python
-from psd_toolkit.psd.processor import PSDProcessor
-from psd_toolkit.job import BatchJob
+from mil_kit.psd.processor import PSDProcessor
+from mil_kit.job import BatchJob
 
 # Process a single file
 processor = PSDProcessor("image.psd")
