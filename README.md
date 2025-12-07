@@ -1,10 +1,10 @@
-# psd-toolkit
+# mil-kit
 
 ![Tests](https://github.com/hhandika/psd-toolkit/actions/workflows/test.yml/badge.svg)
 ![GitHub Tag](https://img.shields.io/github/v/tag/hhandika/psd-toolkit?label=GitHub)
 ![PyPI - Version](https://img.shields.io/pypi/v/psd-toolkit?color=blue)
 
-A Python toolkit for batch processing Adobe Photoshop PSD files. Automatically hide text layers and export to PNG format.
+A Python toolkit for batch processing the Mammal Image Library (MIL) images. Reshape, convert, and optimize images for the mammal diversity database and other applications.
 
 ## Features
 
@@ -21,7 +21,7 @@ A Python toolkit for batch processing Adobe Photoshop PSD files. Automatically h
 Install using pip:
 
 ```bash
-pip install psd-toolkit
+pip install mil-kit
 ```
 
 Or using uv:
@@ -37,13 +37,13 @@ uv add psd-toolkit
 Process PSD files in a directory:
 
 ```bash
-psd-toolkit -d /path/to/psd/files
+mil-kit -d /path/to/psd/files
 ```
 
 Process recursively, specify output directory, and use JPEG format:
 
 ```bash
-psd-toolkit -d /path/to/psd/files -o /path/to/output -r -f jpeg
+mil-kit -d /path/to/psd/files -o /path/to/output -r -f jpeg
 ```
 
 ### Options
@@ -55,7 +55,7 @@ psd-toolkit -d /path/to/psd/files -o /path/to/output -r -f jpeg
 
 ### Python API
 
-You can also use psd-toolkit as a Python library:
+You can also use mil-kit as a Python library:
 
 ```python
 from psd_toolkit.psd.processor import PSDProcessor
@@ -64,7 +64,7 @@ from psd_toolkit.job import BatchJob
 # Process a single file
 processor = PSDProcessor("image.psd")
 processor.load()
-processor.hide_text_layers()
+processor.hide_non_image_layers()
 processor.export("output.jpg", format="jpeg")
 
 # Batch process

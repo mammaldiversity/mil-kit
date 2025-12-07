@@ -32,6 +32,38 @@ class PSDProcessor:
                 self.hidden_count += 1
 
         return self.hidden_count
+    
+    def hide_non_image_layers(self):
+        """
+        Hides all non-raster layers including text, vectors, shapes, and adjustments.
+        Only keeps pixel/image layers visible.
+        """
+        if not self.psd:
+            raise RuntimeError("PSD not loaded. Call load() first.")
+
+        self.hidden_count = 0
+        self.hidden_by_type = {
+            "type": 0,      # Text layers
+            "shape": 0,     # Vector/shape layers
+            "adjustment": 0, # Adjustment layers
+            "other": 0      # Other non-pixel layers
+        }
+        
+        # descendants() iterates recursively through groups
+        for layer in self.psd.descendants():
+            # Only keep pixel/image layers visible
+            if layer.visible and layer.kind != "pixel":
+                layer.visible = False
+                self.hidden_count += 1
+                
+                # Track what type was hidden
+                if layer.kind in self.hidden_by_type:
+                    self.hidden_by_type[layer.kind] += 1
+                else:
+                    self.hidden_by_type["other"] += 1
+
+        return self.hidden_count
+
 
     def export(self, output_path, format="png"):
         """Composites the PSD and saves as PNG."""

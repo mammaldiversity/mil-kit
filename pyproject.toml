@@ -1,7 +1,7 @@
 [project]
-name = "psd-toolkit"
+name = "mil-kit"
 version = "0.2.0"
-description = "A toolkit for batch processing PSD files - hide text layers and export to PNG"
+description = "A toolkit for processing the ASM's Mammal Image Library (MIL)."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -29,15 +29,15 @@ classifiers = [
 dependencies = ["pillow>=12.0.0", "psd-tools>=1.12.0", "tqdm>=4.67.1"]
 
 [project.urls]
-Homepage = "https://github.com/hhandika/psd-toolkit"
-Repository = "https://github.com/hhandika/psd-toolkit"
-Issues = "https://github.com/hhandika/psd-toolkit/issues"
+Homepage = "https://github.com/hhandika/mil-kit"
+Repository = "https://github.com/hhandika/mil-kit"
+Issues = "https://github.com/hhandika/mil-kit/issues"
 
 [dependency-groups]
 dev = ["pytest>=9.0.1"]
 
 [project.scripts]
-psd-toolkit = "psd_toolkit.main:main"
+mil-kit = "mil_kit.main:main"
 
 [build-system]
 requires = ["hatchling"]

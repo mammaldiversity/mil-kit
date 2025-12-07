@@ -1,6 +1,6 @@
 import argparse
 import sys
-from psd_toolkit.job import BatchJob
+from mil_kit.job import BatchJob
 
 
 def main():
@@ -34,7 +34,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        job = BatchJob(args.dir, args.output, args.recursive)
+        job = BatchJob(args.dir, args.output, args.recursive, output_format=args.output_format)
         job.run()
     except Exception as e:
         print(f"Critical Error: {e}")
