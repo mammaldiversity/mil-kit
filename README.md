@@ -1,8 +1,8 @@
 # mil-kit
 
-![Tests](https://github.com/hhandika/psd-toolkit/actions/workflows/test.yml/badge.svg)
-![GitHub Tag](https://img.shields.io/github/v/tag/hhandika/psd-toolkit?label=GitHub)
-![PyPI - Version](https://img.shields.io/pypi/v/psd-toolkit?color=blue)
+![Tests](https://github.com/hhandika/mil-kit/actions/workflows/test.yml/badge.svg)
+![GitHub Tag](https://img.shields.io/github/v/tag/hhandika/mil-kit?label=GitHub)
+![PyPI - Version](https://img.shields.io/pypi/v/mil-kit?color=blue)
 
 A Python toolkit for batch processing the Mammal Image Library (MIL) images. Reshape, convert, and optimize images for the mammal diversity database and other applications.
 
