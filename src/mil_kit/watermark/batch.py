@@ -12,7 +12,7 @@ import shutil
 
 from tqdm import tqdm
 from mil_kit.watermark.add import WatermarkProcessor
-from mil_kit.watermark.meta import MetadataParser
+from mil_kit.meta.copyright import MetadataParser
 
 
 class WatermarkJob:

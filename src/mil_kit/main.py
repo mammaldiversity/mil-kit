@@ -1,9 +1,11 @@
 import argparse
 import sys
 from importlib.metadata import version
+from pathlib import Path
 
 from mil_kit.psd.batch import BatchJob
 from mil_kit.watermark.batch import WatermarkJob
+from mil_kit.meta.mdd import MetadataForMdd
 
 
 def get_version() -> str:
@@ -113,12 +115,35 @@ def get_arg() -> argparse.ArgumentParser:
             "--meta-file is not provided."
         ),
     )
-
     watermark_parser.add_argument(
         "--opacity",
         type=float,
         default=0.8,
         help="Watermark opacity between 0.0 and 1.0 (default: 0.8)",
+    )
+
+    # --- mdd subcommand ---
+    mdd_parser = subparsers.add_parser(
+        "mdd",
+        help="Merge MIL and MDD metadata and export as JSON",
+    )
+    mdd_parser.add_argument(
+        "--mil-file",
+        required=True,
+        type=Path,
+        help="Path to the MIL metadata file (CSV or Excel)",
+    )
+    mdd_parser.add_argument(
+        "--mdd-file",
+        required=True,
+        type=Path,
+        help="Path to the MDD metadata file (CSV or Excel)",
+    )
+    mdd_parser.add_argument(
+        "-o", "--output",
+        required=True,
+        type=Path,
+        help="Output path for the exported JSON file",
     )
 
     return parser
@@ -166,6 +191,14 @@ def run_watermark(args: argparse.Namespace) -> None:
     job.run()
 
 
+def run_mdd(args: argparse.Namespace) -> None:
+    job = MetadataForMdd(
+        mil_path=args.mil_file,
+        mdd_path=args.mdd_file,
+    )
+    job.to_json(args.output)
+
+
 def main() -> None:
     parser = get_arg()
     args = parser.parse_args()
@@ -177,6 +210,7 @@ def main() -> None:
     handlers = {
         "export": run_export,
         "watermark": run_watermark,
+        "mdd": run_mdd,
     }
 
     try:

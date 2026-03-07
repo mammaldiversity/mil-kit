@@ -56,7 +56,7 @@ class WatermarkProcessor:
 
     def __init__(
         self,
-        file_path: str,
+        file_path: Path,
         watermark_text: str,
         opacity: float = 0.8,
     ) -> None:
@@ -150,7 +150,7 @@ class WatermarkProcessor:
         max_text_width = self.image.width - (self._MARGIN + self._PADDING) * 2
         lines = self._wrap_text(self.watermark_text, font, max_text_width, draw)
 
-        line_height = self._line_height(font, draw)
+        line_height = self._line_height(font)
         total_text_h = (
             line_height * len(lines)
             + self._LINE_SPACING * (len(lines) - 1)
@@ -284,9 +284,7 @@ class WatermarkProcessor:
 
     @staticmethod
     def _line_height(
-        font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
-        draw: ImageDraw.ImageDraw,
-    ) -> int:
+        font: ImageFont.FreeTypeFont | ImageFont.ImageFont,    ) -> int:
         """
         Return the rendered pixel height of a single line of text.
 
@@ -295,7 +293,6 @@ class WatermarkProcessor:
 
         Args:
             font: The font to measure.
-            draw (ImageDraw.ImageDraw): Draw context used for measurement.
 
         Returns:
             int: Line height in pixels.
