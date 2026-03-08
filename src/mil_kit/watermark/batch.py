@@ -421,10 +421,8 @@ class WatermarkJob:
             Path: Destination path including the converted file extension.
         """
         if self.recursive and self.output_dir != self.input_dir:
-            relative_path = image_path.relative_to(self.input_dir)
-            output_subdir = self.output_dir / relative_path.parent
-            output_subdir.mkdir(parents=True, exist_ok=True)
-            return output_subdir / f"{image_path.stem}.{self.output_format}"
+            self.output_dir.mkdir(parents=True, exist_ok=True)
+            return self.output_dir / f"{image_path.stem}.{self.output_format}"
 
         return self.output_dir / f"{image_path.stem}.{self.output_format}"
 
