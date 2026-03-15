@@ -52,7 +52,7 @@ class WatermarkProcessor:
     _MIN_FONT_SIZE = 12
     _BACKGROUND_COLOR = (0, 0, 0)
     _TEXT_COLOR = (255, 255, 255)
-    _CORNER_RADIUS = 6
+    _CORNER_RADIUS = 8
 
     def __init__(
         self,
@@ -107,29 +107,33 @@ class WatermarkProcessor:
             self.image = Image.open(self.file_path).convert("RGBA")
         except Exception as e:
             raise IOError(f"Failed to open image: {e}")
-
+        
     def apply_text_watermark(self) -> None:
         """
         Renders a copyright watermark anchored to the bottom-left corner.
 
         Layout:
             - Font size scales with canvas width (``width // 40``), with a
-              minimum of ``_MIN_FONT_SIZE`` px, ensuring legibility across
-              image sizes.
+            minimum of ``_MIN_FONT_SIZE`` px, ensuring legibility across
+            image sizes.
             - If the full text exceeds the available canvas width (minus
-              margins and padding), it is word-wrapped onto multiple lines.
-              Each line is fitted greedily word by word so the pill never
-              overflows the canvas horizontally.
-            - The text block is drawn inside a rounded-rectangle pill with a
-              semi-transparent dark background so it remains readable on
-              both light and dark source images.
+            margins and padding), it is word-wrapped onto multiple lines.
+            Each line is fitted greedily word by word so the badge never
+            overflows the canvas horizontally.
+            - The text block is drawn inside a rounded rectangle background
+            (corner radius equivalent to Tailwind ``rounded-lg``, 8 px)
+            with a semi-transparent dark fill for legibility on both light
+            and dark source images.
+            - All four badge edges are clamped strictly inside the canvas
+            bounds so rounded corners are never clipped regardless of
+            text length or image size.
             - ``_LINE_SPACING`` extra pixels are added between each wrapped
-              line for readability.
-            - A margin of ``_MARGIN`` px separates the pill from the canvas
-              edges on all sides.
-            - Both the pill background and text alpha are derived from
-              ``self.opacity`` so a single parameter controls the overall
-              watermark intensity.
+            line for readability.
+            - A margin of ``_MARGIN`` px separates the badge from the canvas
+            edges on all sides.
+            - Both the background and text alpha are derived from
+            ``self.opacity`` so a single parameter controls the overall
+            watermark intensity.
 
         The watermark layer is composited onto ``self.image`` using
         ``Image.alpha_composite`` and the result is stored in
@@ -162,19 +166,25 @@ class WatermarkProcessor:
         bg_alpha = int(180 * self.opacity)
         text_alpha = int(255 * self.opacity)
 
-        pill_x0 = self._MARGIN
-        pill_y0 = self.image.height - total_text_h - (self._PADDING * 2) - self._MARGIN
-        pill_x1 = pill_x0 + int(widest_line_w) + (self._PADDING * 2)
-        pill_y1 = pill_y0 + total_text_h + (self._PADDING * 2)
+        badge_x0 = self._MARGIN
+        badge_x1 = min(
+            badge_x0 + int(widest_line_w) + (self._PADDING * 2),
+            self.image.width - self._MARGIN,
+        )
+        badge_y1 = self.image.height - self._MARGIN
+        badge_y0 = max(
+            badge_y1 - total_text_h - (self._PADDING * 2),
+            self._MARGIN,
+        )
 
         draw.rounded_rectangle(
-            [pill_x0, pill_y0, pill_x1, pill_y1],
+            [badge_x0, badge_y0, badge_x1, badge_y1],
             radius=self._CORNER_RADIUS,
             fill=(*self._BACKGROUND_COLOR, bg_alpha),
         )
 
-        text_x = pill_x0 + self._PADDING
-        text_y = pill_y0 + self._PADDING
+        text_x = badge_x0 + self._PADDING
+        text_y = badge_y0 + self._PADDING
         for line in lines:
             draw.text(
                 (text_x, text_y),
@@ -185,6 +195,7 @@ class WatermarkProcessor:
             text_y += line_height + self._LINE_SPACING
 
         self.watermarked = Image.alpha_composite(self.image, layer)
+
 
     def export(
         self,
