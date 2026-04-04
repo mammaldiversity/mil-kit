@@ -1,8 +1,6 @@
 """
 Merge metadata with mdd metadata then export as JSON.
 """
-
-
 from pathlib import Path
 import polars as pl
 import re
@@ -18,15 +16,14 @@ class MetadataForMdd:
 
     def to_json(self, output_path: Path) -> None:
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        # Add json extension if not present
         if output_path.suffix.lower() != ".json":
             output_path = output_path.with_suffix(output_path.suffix + ".json")
         merged_df = self._load_metadata()
         merged_df.write_json(output_path)
 
     def _load_metadata(self) -> pl.DataFrame:
-        mil_df = self._load_file(self.mil_path) 
-        mdd_df = self._load_file(self.mdd_path)  
+        mil_df = self._load_file(self.mil_path)
+        mdd_df = self._load_file(self.mdd_path)
         mil_df = self._clean_column_names(mil_df)
         mdd_df = self._clean_column_names(mdd_df)
 
@@ -38,17 +35,21 @@ class MetadataForMdd:
                 "locationWhereImageTaken": "location",
                 "dateImageTaken": "dateTaken",
             })
+            .with_columns([
+                pl.col("specificEpithet").str.ends_with("?").alias("isUncertainIdentification"),
+                pl.col("specificEpithet").map_elements(
+                    self._strip_epithet_qualifier, return_dtype=pl.String
+                ).alias("specificEpithet"),
+            ])
             .with_columns(
                 (pl.col("genus") + "_" + pl.col("specificEpithet")).alias("scientificName")
             )
-            .drop(["genus", "specificEpithet"]) 
+            .drop(["genus", "specificEpithet"])
         )
 
         mdd_df = (
             mdd_df.select(MDD_COLS)
-            .rename({
-                "id": "mddId",
-            })
+            .rename({"id": "mddId"})
             .with_columns(
                 (pl.col("genus") + "_" + pl.col("specificEpithet")).alias("scientificName")
             )
@@ -57,6 +58,17 @@ class MetadataForMdd:
 
         merged_df = mil_df.join(mdd_df, on="scientificName", how="left")
         return merged_df.drop("scientificName")
+
+    @staticmethod
+    def _strip_epithet_qualifier(epithet: str | None) -> str | None:
+        """Removes a trailing '?' qualifier from specificEpithet.
+        
+        A trailing '?' indicates an uncertain species-level identification,
+        following open nomenclature conventions (cf. Darwin Core identificationQualifier).
+        """
+        if epithet is None:
+            return None
+        return epithet.removesuffix("?")
 
 
     def _clean_column_names(self, df: pl.DataFrame) -> pl.DataFrame:
