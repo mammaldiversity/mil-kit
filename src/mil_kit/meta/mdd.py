@@ -5,7 +5,7 @@ from pathlib import Path
 import polars as pl
 import re
 
-MIL_COL = ["milNo", "genus", "specificEpithet", "descriptionOfImage", "photographer", "locationWhereImageTaken", "dateImageTaken"]
+MIL_COL = ["milNo", "genus", "specificEpithet", "descriptionOfImage", "photographer", "locationWhereImageTaken", "distributionOfSpecies", "dateImageTaken"]
 MDD_COLS = ["id", "genus", "specificEpithet"]
 
 
@@ -33,6 +33,7 @@ class MetadataForMdd:
                 "milNo": "milId",
                 "descriptionOfImage": "description",
                 "locationWhereImageTaken": "location",
+                "distributionOfSpecies": "distribution",
                 "dateImageTaken": "dateTaken",
             })
             .with_columns([
