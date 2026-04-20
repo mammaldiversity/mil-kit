@@ -140,6 +140,12 @@ def get_arg() -> argparse.ArgumentParser:
         help="Path to the MDD metadata file (CSV or Excel)",
     )
     mdd_parser.add_argument(
+        "--mil-img-dir",
+        required=True,
+        type=Path,
+        help="Path to the MIL image directory",
+    )
+    mdd_parser.add_argument(
         "-o", "--output",
         required=True,
         type=Path,

@@ -1,18 +1,34 @@
 """
 Merge metadata with mdd metadata then export as JSON.
 """
-from pathlib import Path
 import polars as pl
 import re
+
+from PIL import Image
+from pathlib import Path
 
 MIL_COL = ["milNo", "genus", "specificEpithet", "descriptionOfImage", "photographer", "locationWhereImageTaken", "distributionOfSpecies", "dateImageTaken"]
 MDD_COLS = ["id", "genus", "specificEpithet"]
 
 
 class MetadataForMdd:
-    def __init__(self, mil_path: Path, mdd_path: Path) -> None:
+    """
+    A class to merge metadata with mdd metadata and export as JSON.
+
+    Attributes:
+        mil_path (Path): Path to the MIL metadata file.
+        mdd_path (Path): Path to the MDD metadata file.
+        mil_img_dir (Path): Path to the MIL image directory.
+
+    Methods:
+        to_json(self, output_path: Path) -> None:
+            Merge metadata with mdd metadata and export as JSON.
+            Check if there are any missing images.
+    """
+    def __init__(self, mil_path: Path, mdd_path: Path, mil_img_dir: Path) -> None:
         self.mil_path = mil_path
         self.mdd_path = mdd_path
+        self.mil_img_dir = mil_img_dir
 
     def to_json(self, output_path: Path) -> None:
         output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -58,7 +74,47 @@ class MetadataForMdd:
         )
 
         merged_df = mil_df.join(mdd_df, on="scientificName", how="left")
+        img_df = self._build_img_df()
+        merged_df = merged_df.join(img_df, on="milId", how="left")
+        self._check_missing_images(merged_df)
         return merged_df.drop("scientificName")
+    
+    def _check_missing_images(self, merged_df: pl.DataFrame) -> None:
+        """Check for missing images. Raise an error if any images are missing."""
+        missing_images = merged_df.filter(pl.col("orientation").is_null())
+        if missing_images.height > 0:
+            missing_mil_ids = missing_images.select("milId").to_series().to_list()
+            raise ValueError(f"Missing images found: {missing_mil_ids}")
+    
+    def _build_img_df(self) -> pl.DataFrame:
+        """Build a dataframe of all images in the MIL image directory. Return a dataframe of images."""
+        image_files = self._find_all_images()
+        img_df = pl.DataFrame({
+            "milId": [self._get_mil_id_from_filename(f) for f in image_files],
+            "orientation": [self._get_orientation_from_image(f) for f in image_files],
+        })
+        return img_df
+
+    def _find_all_images(self) -> list[Path]:
+        """Read all images in the MIL image directory. Return a list of paths to the images."""
+        found_files = self.mil_img_dir.rglob("*")
+        image_files = [f for f in found_files if f.suffix.lower() in (".jpg", ".jpeg", ".png", ".tif", ".tiff", ".webp")]
+        return image_files
+        
+    def _get_mil_id_from_filename(self, file_path: Path) -> str:
+        """Extract the MIL ID from the filename. Return the MIL ID."""
+        return file_path.stem
+
+    def _get_orientation_from_image(self, file_path: Path) -> str:
+        """Extract the orientation from the filename. Return the orientation."""
+        with Image.open(file_path) as img:
+            width, height = img.size
+            if width > height:
+                return "landscape"
+            elif width < height:
+                return "portrait"
+            else:
+                return "square"
 
     @staticmethod
     def _strip_epithet_qualifier(epithet: str | None) -> str | None:
